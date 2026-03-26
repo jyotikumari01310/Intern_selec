@@ -1,0 +1,26 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config.database import Base, engine
+from app.routes import auth, task
+
+app = FastAPI()
+
+# CORS (important for frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+# Routes
+app.include_router(auth.router, prefix="/auth")
+app.include_router(task.router, prefix="/tasks")
+
+@app.get("/")
+def home():
+    return {"message": "API is running"}
